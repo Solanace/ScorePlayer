@@ -1,4 +1,5 @@
-Note n;
+import java.util.ArrayList; 
+//Note n;// shouldn't this be ArrayList<Note> Notes or something;
 PImage score;
 
 public void setup() {
@@ -17,4 +18,9 @@ public void draw() {
   score.updatePixels();
   delay(1000);
   score = loadImage("twinkle1.gif");
+
+//void recognizeStaff(){}
+
+//void recognizeStaffLines(){}
+
 }
