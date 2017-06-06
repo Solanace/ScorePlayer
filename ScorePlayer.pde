@@ -17,26 +17,40 @@ public void setup() {
       loc = i;
     }
   }*/
-  int loc = getLoc();
+  loc = getLoc();
 }
 
 int getLoc() {
-  for (int col = score.width - 1; col >= 0; col --) {
-    for (int row = score.height - 1; row >= 0; row --) {
-      System.out.println(col * row);
-      if (score.pixels[row * col] == color(0, 0, 0)) {
-        return row * col;
+  for (int c = score.width - 1; c >= 0; c --) {  
+    for (int r = score.height - 1; r >= 0; r --)   {
+      if (score.pixels[r * score.width + c] == color(0, 0, 0)) {
+        return r * score.width + c;
       }
     }
   }
   return -1;
 }
-      
+
+int getTop(int loc) { // returns the top of the staff line
+  while (loc >= 0) {
+    if (score.pixels[loc] != color(0, 0, 0)) {
+      return loc;
+    }
+    loc -= score.width;
+  }
+  return -1;
+}
 
 public void draw() {
   image(score, 0, 0);
   score.loadPixels();
-  score.pixels[loc] = color(255, 211, 25);
+  for (int i = loc - 100; i < loc; i ++) {
+    score.pixels[i] = color(200, 100, 150);
+  }
+  int h = getTop(loc);
+  for (int i = h - 10 * score.width; i < h; i += score.width) {
+    score.pixels[i] = color(200, 166, 200);
+  }
   score.updatePixels();
   delay(1000);
 
