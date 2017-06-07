@@ -2,6 +2,7 @@ import java.util.ArrayList;
 PImage score;
 int loc = -1; // location of the bottom right corner of the bottom staff
 ArrayList<Integer> staffLines; // each value is the bottom right of a staff line
+int staffLength;
 
 int getBot() { // returns the bottom right of the bottommost staff
   for (int c = score.width - 1; c >= 0; c --) {  
@@ -62,7 +63,7 @@ int getNextStaff(int loc) { // returns the bottom of the staff above the given l
 }
 
 int getLeft(int loc) {
-  while (loc % score.width >= 0) {
+  while (loc % score.width > 5) {
     if (score.pixels[loc] == color(255, 255, 255)) {
       return loc;
     }
@@ -93,12 +94,11 @@ boolean isNotOnStaff(int loc, int[] lines) { // loc and lines are both in rows, 
 
 void markStaff(int loc) { // loc is the bottom right corner of a staff
   int topRight = getTop(loc);
-  int topLeft = getLeft(topRight);
+  int topLeft = topRight - staffLength;
   int pointer = topLeft + 50;
-  for (int i = topRight; i % score.width > -1; i --) {
-    System.out.println(score.pixels[i] == color(0, 0, 0));
+  for (int i = topRight; i % score.width > 2; i --) {
+    //System.out.println(score.pixels[i] != color(255, 255, 255));
   }
-  System.out.println(score.pixels[topLeft] == color(0, 0, 0));
   mark(pointer, 3, -1412412);
   int[] topStaff = new int[5]; // in rows
   int place = topLeft;
@@ -106,17 +106,17 @@ void markStaff(int loc) { // loc is the bottom right corner of a staff
     topStaff[i] = place / score.width;
     place = moveDownOne(place);
   }
-  System.out.println(topStaff[0]);
+  //System.out.println(topStaff[0]);
   /*for (int i = 0; i < topStaff.length; i ++) {
     mark(topStaff[i] * score.width + 250, 1, -442232);
   }*/
-  int heightDifference = (staffLines.get(2) - topRight) / score.width;
+  int heightDifference = (loc - topRight) / score.width;
   for (int i = pointer % score.width; i < topRight % score.width; i ++) {
     int topLine = pointer / score.width;
     for (int h = 0; h < heightDifference; h ++) {
       if (isNotOnStaff(h + topLine, topStaff)) {
         //score.pixels[(topLine + h) * score.width + i] = -15456196;
-        System.out.println(score.pixels[(topLine + h) * score.width + i]);
+        //System.out.println(score.pixels[(topLine + h) * score.width + i]);
         //PROCEED WITH CHECKING FOR NOTES OR RESTS HERE
         if (score.pixels[(topLine + h) * score.width + i] != color(255, 255, 255)) {
           score.pixels[(topLine + h) * score.width + i] = -55123;
@@ -125,14 +125,10 @@ void markStaff(int loc) { // loc is the bottom right corner of a staff
     }
   }
 }
-  
-
-public void settings() {
-  score = loadImage("twinkle2.png");
-  size(score.width, score.height);
-}
 
 public void setup() {
+  score = loadImage("twinkle2.png");
+  fullScreen();
   score.loadPixels();
   staffLines = new ArrayList<Integer>();
   loc = getBot();
@@ -140,8 +136,16 @@ public void setup() {
     staffLines.add(loc);
     loc = getNextStaff(getTop(loc));
   }
-  markStaff(staffLines.get(0));
-  score.save("Data/ugly.png");
+  for (int i : staffLines) {
+    mark(i, 3, -1414213);
+  }
+  System.out.println(score.width);
+  staffLength = getTop(staffLines.get(2)) - getLeft(getTop(staffLines.get(2)));
+  println(staffLength);
+  mark(getTop(staffLines.get(1)), 3, -242434);
+  mark(getTop(staffLines.get(1)) - staffLength, 3, -3434234);
+  markStaff(staffLines.get(1));
+  score.save("data/ugly.png");
 }
 
 public void draw() {
