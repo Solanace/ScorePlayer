@@ -24,6 +24,32 @@ int getTop(int loc) { // returns the top of a staff line, assuming you give it a
   return -1;
 }
 
+int moveUpOne(int loc) {
+  while (score.pixels[loc] != color(255, 255, 255)) {
+    loc -= score.width;
+  }
+  while (loc >= 0) {
+    if (score.pixels[loc] != color(255, 255, 255)) {
+      return loc;
+    }
+    loc -= score.width;
+  }
+  return -1;
+}
+
+int moveDownOne(int loc) {
+  while (score.pixels[loc] != color(255, 255, 255)) {
+    loc += score.width;
+  }
+  while (loc < score.width * score.height) {
+    if (score.pixels[loc] != color(255, 255, 255)) {
+      return loc;
+    }
+    loc += score.width;
+  }
+  return -1;
+}
+
 int getNextStaff(int loc) { // returns the bottom of the staff above the given location
   loc -= score.width;
   while (loc >= 0) {
@@ -56,9 +82,13 @@ void mark (int loc, int r, int hue) { // makes a square of side 2r centered at l
   }
 }
 
-public void setup() {
-  size(800, 600);
+public void settings() {
   score = loadImage("twinkle2.png");
+  size(score.width, score.height);
+}
+
+public void setup() {
+  score.loadPixels();
   staffLines = new ArrayList<Integer>();
   loc = getBot();
   while (loc >= 0) {
@@ -66,13 +96,22 @@ public void setup() {
     loc = getNextStaff(getTop(loc));
   }
   for (int i : staffLines) {
-    System.out.println(i);
     mark(i, 2, color(50, 124, 65));
   }  
-  int topRight = getTop(staffLines.get(1));
+  int topRight = getTop(staffLines.get(2));
   mark(topRight, 3, color(53, 123, 221));
   int topLeft = getLeft(topRight);
-  mark(topLeft, 4, color(120, 65, 77));
+  mark(moveDownOne(topLeft), 4, color(120, 65, 77));
+  int pointer = topLeft + 50;
+  mark(pointer, 3, -1412412);
+  int heightDifference = (staffLines.get(2) - topRight) / score.width;
+  for (int i = pointer % score.width; i < score.width; i ++) {
+    for (int h = 0; h < heightDifference; h ++) {
+      mark((pointer / score.width + h) * score.width + i, 0, -1412412);
+    }
+    delay(50);
+    image(score, 0, 0);
+  }
   score.save("ugly.png");
 }
 
