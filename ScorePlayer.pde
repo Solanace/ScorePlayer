@@ -109,10 +109,9 @@ public void setup() {
     for (int h = 0; h < heightDifference; h ++) {
       mark((pointer / score.width + h) * score.width + i, 0, -1412412);
     }
-    delay(50);
     image(score, 0, 0);
   }
-  score.save("ugly.png");
+  score.save("Data/ugly.png");
 }
 
 public void draw() {
