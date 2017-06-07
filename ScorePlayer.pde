@@ -82,6 +82,15 @@ void mark (int loc, int r, int hue) { // makes a square of side 2r centered at l
   }
 }
 
+boolean isNotOnStaff(int loc, int[] lines) { // loc and lines are both in rows, divided by score.width
+  for (int i = 0; i < lines.length; i ++) {
+    if (abs(loc - lines[i]) <= 1) {
+      return false;
+    }
+  }
+  return true;
+}
+
 public void settings() {
   score = loadImage("twinkle2.png");
   size(score.width, score.height);
@@ -101,15 +110,32 @@ public void setup() {
   int topRight = getTop(staffLines.get(2));
   mark(topRight, 3, color(53, 123, 221));
   int topLeft = getLeft(topRight);
-  mark(moveDownOne(topLeft), 4, color(120, 65, 77));
-  int pointer = topLeft + 50;
+  mark(moveUpOne(moveDownOne(topLeft)), 4, color(120, 65, 77));
+  int pointer = topLeft + 50; // starting position of the snake algorithm, bypassing any clefs and key signatures
   mark(pointer, 3, -1412412);
+  int[] topStaff = new int[5]; // in rows
+  int place = topLeft;
+  for (int i = 0; i < 5; i ++) {
+    topStaff[i] = place / score.width;
+    place = moveDownOne(place);
+  }
+  System.out.println(topStaff[0]);
+  /*for (int i = 0; i < topStaff.length; i ++) {
+    mark(topStaff[i] * score.width + 250, 1, -442232);
+  }*/
   int heightDifference = (staffLines.get(2) - topRight) / score.width;
-  for (int i = pointer % score.width; i < score.width; i ++) {
+  for (int i = pointer % score.width; i < topRight % score.width; i ++) {
+    int topLine = pointer / score.width;
     for (int h = 0; h < heightDifference; h ++) {
-      mark((pointer / score.width + h) * score.width + i, 0, -1412412);
+      if (isNotOnStaff(h + topLine, topStaff)) {
+        //score.pixels[(topLine + h) * score.width + i] = -15456196;
+        System.out.println(score.pixels[(topLine + h) * score.width + i]);
+        //PROCEED WITH CHECKING FOR NOTES OR RESTS HERE
+        if (score.pixels[(topLine + h) * score.width + i] != color(255, 255, 255)) {
+          score.pixels[(topLine + h) * score.width + i] = -55123;
+        }
+      }
     }
-    image(score, 0, 0);
   }
   score.save("Data/ugly.png");
 }
