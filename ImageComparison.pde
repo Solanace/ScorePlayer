@@ -8,7 +8,12 @@ class ImageComparer{
   }
   
   double compare(){//returns percent dissimilar
-    two.resize(one.width,one.height);
+    if (one.width*one.height>two.width*two.height){
+      one.resize(two.width,two.height);
+    }
+    else{
+      two.resize(one.width,one.height);
+    }
     one.filter(THRESHOLD);
     two.filter(THRESHOLD);
     double percent=0;
