@@ -20,5 +20,18 @@ class ImageComparer{
       }
     }
     return percent/(one.width*one.height);
-  } 
+  }
+  
+  void setOne(String first){
+    one=loadImage(first);
+  }
+  
+  void setTwo(String second){
+    two=loadImage(second);
+  }
+  
+  void setTwo(String first, String second){
+    one=loadImage(first);
+    two=loadImage(second);
+  }
 }
