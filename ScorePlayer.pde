@@ -91,27 +91,14 @@ boolean isNotOnStaff(int loc, int[] lines) { // loc and lines are both in rows, 
   return true;
 }
 
-public void settings() {
-  score = loadImage("twinkle2.png");
-  size(score.width, score.height);
-}
-
-public void setup() {
-  score.loadPixels();
-  staffLines = new ArrayList<Integer>();
-  loc = getBot();
-  while (loc >= 0) {
-    staffLines.add(loc);
-    loc = getNextStaff(getTop(loc));
-  }
-  for (int i : staffLines) {
-    mark(i, 2, color(50, 124, 65));
-  }  
-  int topRight = getTop(staffLines.get(2));
-  mark(topRight, 3, color(53, 123, 221));
+void markStaff(int loc) { // loc is the bottom right corner of a staff
+  int topRight = getTop(loc);
   int topLeft = getLeft(topRight);
-  mark(moveUpOne(moveDownOne(topLeft)), 4, color(120, 65, 77));
-  int pointer = topLeft + 50; // starting position of the snake algorithm, bypassing any clefs and key signatures
+  int pointer = topLeft + 50;
+  for (int i = topRight; i % score.width > -1; i --) {
+    System.out.println(score.pixels[i] == color(0, 0, 0));
+  }
+  System.out.println(score.pixels[topLeft] == color(0, 0, 0));
   mark(pointer, 3, -1412412);
   int[] topStaff = new int[5]; // in rows
   int place = topLeft;
@@ -137,6 +124,23 @@ public void setup() {
       }
     }
   }
+}
+  
+
+public void settings() {
+  score = loadImage("twinkle2.png");
+  size(score.width, score.height);
+}
+
+public void setup() {
+  score.loadPixels();
+  staffLines = new ArrayList<Integer>();
+  loc = getBot();
+  while (loc >= 0) {
+    staffLines.add(loc);
+    loc = getNextStaff(getTop(loc));
+  }
+  markStaff(staffLines.get(0));
   score.save("Data/ugly.png");
 }
 
