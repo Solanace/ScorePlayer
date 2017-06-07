@@ -144,7 +144,9 @@ public void setup() {
   println(staffLength);
   mark(getTop(staffLines.get(1)), 3, -242434);
   mark(getTop(staffLines.get(1)) - staffLength, 3, -3434234);
+  markStaff(staffLines.get(0));
   markStaff(staffLines.get(1));
+  markStaff(staffLines.get(2));
   score.save("data/ugly.png");
 }
 
