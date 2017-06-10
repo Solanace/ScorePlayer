@@ -1,161 +1,113 @@
-import java.util.ArrayList; 
 PImage score;
-int loc = -1; // location of the bottom right corner of the bottom staff
-ArrayList<Integer> staffLines; // each value is the bottom right of a staff line
-int staffLength;
+int WHITE = color(255, 255, 255);
+int RED = color(255, 0, 0);
+int ORANGE = color(255, 165, 0);
+int YELLOW = color(255, 255, 0);
+int GREEN = color(0, 255, 0);
+int BLUE = color(0, 0, 255);
+int PURPLE = color(128, 0, 128);
+int BLACK = color(0, 0, 0);
 
-int getBot() { // returns the bottom right of the bottommost staff
-  for (int c = score.width - 1; c >= 0; c --) {  
-    for (int r = score.height - 1; r >= 0; r --)   {
-      if (score.pixels[r * score.width + c] == color(0, 0, 0)) {
-        return r * score.width + c;
-      }
-    }
-  }
-  return -1;
-}
-
-int getTop(int loc) { // returns the top of a staff line, assuming you give it a position in between measures
-  while (loc >= 0) {
-    if (score.pixels[loc] == color(255, 255, 255)) {
-      return loc + 2 * score.width;
-    }
-    loc -= score.width;
-  }
-  return -1;
-}
-
-int moveUpOne(int loc) {
-  while (score.pixels[loc] != color(255, 255, 255)) {
-    loc -= score.width;
-  }
-  while (loc >= 0) {
-    if (score.pixels[loc] != color(255, 255, 255)) {
-      return loc;
-    }
-    loc -= score.width;
-  }
-  return -1;
-}
-
-int moveDownOne(int loc) {
-  while (score.pixels[loc] != color(255, 255, 255)) {
-    loc += score.width;
-  }
-  while (loc < score.width * score.height) {
-    if (score.pixels[loc] != color(255, 255, 255)) {
-      return loc;
-    }
-    loc += score.width;
-  }
-  return -1;
-}
-
-int getNextStaff(int loc) { // returns the bottom of the staff above the given location
-  loc -= score.width;
-  while (loc >= 0) {
-    if (score.pixels[loc] == color(0, 0, 0)) {
-      return loc + score.width;
-    }
-    loc -= score.width;
-  }
-  return -1;
-}
-
-int getLeft(int loc) {
-  while (loc % score.width > 5) {
-    if (score.pixels[loc] == color(255, 255, 255)) {
-      return loc;
-    }
-    loc --;
-  }
-  return -1;
-}
-
-void mark (int loc, int r, int hue) { // makes a square of side 2r centered at loc
-  for (int i = loc - r * score.width; i <= loc + r * score.width; i += score.width) {
-    for (int j = i - r; j <= i + r; j ++) {
-      score.pixels[j] = hue;
-    }
-  }
-  if (hue != color(20, 40, 60)) {
-    mark(loc, 0, color(20, 40, 60));
-  }
-}
-
-boolean isNotOnStaff(int loc, int[] lines) { // loc and lines are both in rows, divided by score.width
-  for (int i = 0; i < lines.length; i ++) {
-    if (abs(loc - lines[i]) <= 1) {
-      return false;
-    }
-  }
-  return true;
-}
-
-void markStaff(int loc) { // loc is the bottom right corner of a staff
-  int topRight = getTop(loc);
-  int topLeft = topRight - staffLength;
-  int pointer = topLeft + 50;
-  for (int i = topRight; i % score.width > 2; i --) {
-    //System.out.println(score.pixels[i] != color(255, 255, 255));
-  }
-  mark(pointer, 3, -1412412);
-  int[] topStaff = new int[5]; // in rows
-  int place = topLeft;
-  for (int i = 0; i < 5; i ++) {
-    topStaff[i] = place / score.width;
-    place = moveDownOne(place);
-  }
-  //System.out.println(topStaff[0]);
-  /*for (int i = 0; i < topStaff.length; i ++) {
-    mark(topStaff[i] * score.width + 250, 1, -442232);
-  }*/
-  int heightDifference = (loc - topRight) / score.width;
-  for (int i = pointer % score.width; i < topRight % score.width; i ++) {
-    int topLine = pointer / score.width;
-    for (int h = 0; h < heightDifference; h ++) {
-      if (isNotOnStaff(h + topLine, topStaff)) {
-        //score.pixels[(topLine + h) * score.width + i] = -15456196;
-        //System.out.println(score.pixels[(topLine + h) * score.width + i]);
-        //PROCEED WITH CHECKING FOR NOTES OR RESTS HERE
-        if (score.pixels[(topLine + h) * score.width + i] != color(255, 255, 255)) {
-          score.pixels[(topLine + h) * score.width + i] = -55123;
-        }
-      }
-    }
-  }
-}
-
-public void setup() {
+void setup() {
   score = loadImage("twinkle2.png");
-  fullScreen();
   score.loadPixels();
-  staffLines = new ArrayList<Integer>();
-  loc = getBot();
-  while (loc >= 0) {
-    staffLines.add(loc);
-    loc = getNextStaff(getTop(loc));
+  blackbody(score);
+  size(800, 400);
+  
+  //this will go into getNotes(PImage) later
+  ArrayList<Integer> staffPositions = getStaffPositions();
+  for (int i : staffPositions) {
+    int j = getTop(i);
+    int staffHeight = getStaffHeight(i);
+    mark(i, 3, BLUE);
+    mark(j, 3, PURPLE);
+    mark(j + staffHeight * score.width, 2, RED);
+    mark(getLeft(i), 3, YELLOW);
+    mark(getLeft(j), 3, GREEN);
   }
-  for (int i : staffLines) {
-    mark(i, 3, -1414213);
-  }
-  System.out.println(score.width);
-  staffLength = getTop(staffLines.get(2)) - getLeft(getTop(staffLines.get(2)));
-  println(staffLength);
-  mark(getTop(staffLines.get(1)), 3, -242434);
-  mark(getTop(staffLines.get(1)) - staffLength, 3, -3434234);
-  markStaff(staffLines.get(0));
-  markStaff(staffLines.get(1));
-  markStaff(staffLines.get(2));
-  score.save("data/ugly.png");
 }
 
-public void draw() {
+void draw() {
   image(score, 0, 0);
-  score.loadPixels();
-  score.updatePixels();
 }
 
-//void recognizeStaff(){}
+int getRow(int pixel) {
+  return pixel / score.width;
+}
 
-//void recognizeStaffLines(){}
+int getCol(int pixel) {
+  return pixel % score.width;
+}
+
+void mark(int center, int radius, int hue) {
+  for (int row = getRow(center) - radius; row <= getRow(center) + radius; row ++) {
+    for (int col = getCol(center) - radius; col <= getCol(center) + radius; col ++) {
+      // System.out.println(row * score.width + col);
+      score.pixels[row * score.width + col] = hue;
+    }
+  }
+  score.pixels[center] = BLACK;
+}
+
+void blackbody(PImage score) {
+  for (int i = 0; i < score.pixels.length; i ++) {
+    if (score.pixels[i] != WHITE) {
+      score.pixels[i] = BLACK;
+    }
+  }
+}
+
+int getLast() {
+  for (int col = score.width - 1; col > 0; col --) {
+    for (int row = score.height - 1; row > 0; row --) {
+      if (score.pixels[row * score.width + col] != WHITE) {
+        return row * score.width + col;
+      }
+    }
+  }
+  throw new IndexOutOfBoundsException();
+}
+
+ArrayList<Integer> getStaffPositions() { // bottom right pixel of each staff
+  ArrayList<Integer> staffPositions = new ArrayList<Integer>();
+  int i = getLast();
+  staffPositions.add(getLast());
+  while (i >= 0) {
+    while (score.pixels[i] != WHITE) {
+      i -= score.width;
+    }
+    while (i >= 0 && score.pixels[i] != BLACK) {
+      i -= score.width;
+    }
+    if (i >= 0) {
+      staffPositions.add(i);
+    }
+  }
+  return staffPositions;
+}
+
+int getStaffHeight(int i) { // i is an int in staffPositions
+  int j = getTop(i);
+  return getRow(i - j);
+}
+
+int getTop(int i) {
+  while (i >= 0 && score.pixels[i] != WHITE) {
+    i -= score.width;
+  }
+  while (score.pixels[i - 5] != BLACK) {
+    i += score.width;
+  }
+  return i;
+}
+
+int getLeft(int i) {
+  while (i >= 0 && score.pixels[i] != WHITE) {
+    i --;
+  }
+  return i + 1;
+}
+
+void play(){
+  
+}
