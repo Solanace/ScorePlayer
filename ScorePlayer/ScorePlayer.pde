@@ -1,3 +1,5 @@
+import javax.sound.midi.*;
+
 PImage score;
 int WHITE = color(255, 255, 255);
 int RED = color(255, 0, 0);
@@ -29,6 +31,12 @@ void setup() {
 
 void draw() {
   image(score, 0, 0);
+  try{
+    play();
+  }
+  catch(MidiUnavailableException e){
+    println("Tthis should never happen");
+  }
 }
 
 int getRow(int pixel) {
@@ -107,7 +115,12 @@ int getLeft(int i) {
   }
   return i + 1;
 }
-
-void play(){
-  
+/////////////////////////////// THE CORE FUNCTION THAT CAN POTENTIALLY BE PUT IN ANOTHER CLASS
+void play() throws MidiUnavailableException{
+  Synthesizer synthesizer=MidiSystem.getSynthesizer();
+  synthesizer.open();
+  MidiChannel[] midiChannel=synthesizer.getChannels();
+  Instrument[] instruments=synthesizer.getDefaultSoundbank().getInstruments();
+  synthesizer.loadInstrument(instruments[0]);
+  midiChannel[0].noteOn(60,80);
 }
