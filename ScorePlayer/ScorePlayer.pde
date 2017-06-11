@@ -10,32 +10,55 @@ int BLUE = color(0, 0, 255);
 int PURPLE = color(128, 0, 128);
 int BLACK = color(0, 0, 0);
 
-void setup() {
-  score = loadImage("twinkle2.png");
-  score.loadPixels();
-  blackbody(score);
+Synthesizer synthesizer;
+MidiChannel[] midiChannel;
+Instrument[] instruments;
+Instrument piano;
+
+int tempo;
+ArrayList<Note> notes;
+
+void setup(){
   size(800, 400);
-  
-  //this will go into getNotes(PImage) later
-  ArrayList<Integer> staffPositions = getStaffPositions();
-  for (int i : staffPositions) {
-    int j = getTop(i);
-    int staffHeight = getStaffHeight(i);
-    mark(i, 3, BLUE);
-    mark(j, 3, PURPLE);
-    mark(j + staffHeight * score.width, 2, RED);
-    mark(getLeft(i), 3, YELLOW);
-    mark(getLeft(j), 3, GREEN);
+  try {
+    frameRate(60);
+    score = loadImage("twinkle2.png");
+    score.loadPixels();
+    blackbody(score);
+    
+    synthesizer=MidiSystem.getSynthesizer();
+    synthesizer.open();
+    midiChannel = synthesizer.getChannels();
+    instruments = synthesizer.getDefaultSoundbank().getInstruments();
+    piano=instruments[0];
+    synthesizer.loadInstrument(piano);
+    midiChannel[0].setMono(false);
+    
+    //this will go into getNotes(PImage) later
+    ArrayList<Integer> staffPositions = getStaffPositions();
+    for (int i : staffPositions) {
+      int j = getTop(i);
+      int staffHeight = getStaffHeight(i);
+      mark(i, 3, BLUE);
+      mark(j, 3, PURPLE);
+      mark(j + staffHeight * score.width, 2, RED);
+      mark(getLeft(i), 3, YELLOW);
+      mark(getLeft(j), 3, GREEN);
+    }
+  }
+  catch (MidiUnavailableException e) {
+    print(e);
   }
 }
 
 void draw() {
+  background(0);
   image(score, 0, 0);
   try{
-    play();
+    play(midiChannel);
   }
   catch(MidiUnavailableException e){
-    println("Tthis should never happen");
+    println("idk wtf is going on");
   }
 }
 
@@ -115,12 +138,23 @@ int getLeft(int i) {
   }
   return i + 1;
 }
+
 /////////////////////////////// THE CORE FUNCTION THAT CAN POTENTIALLY BE PUT IN ANOTHER CLASS
-void play() throws MidiUnavailableException{
-  Synthesizer synthesizer=MidiSystem.getSynthesizer();
-  synthesizer.open();
-  MidiChannel[] midiChannel=synthesizer.getChannels();
-  Instrument[] instruments=synthesizer.getDefaultSoundbank().getInstruments();
-  synthesizer.loadInstrument(instruments[0]);
-  midiChannel[0].noteOn(60,80);
+void play(MidiChannel[] midiChannel) throws MidiUnavailableException{
+  ArrayList<Note> noteEnds;
+  int startTime=currentTimeMillis();
+  while (notes.size()!=0){
+    int currentTime=currentTimeMillis()-startTime;
+    Note currentNote=notes.remove(0);
+    while(currentNote.beatStart==currentTimeMillis){
+      noteEnds.add(currentNote);
+      midiChannel[0].noteOn(currentNote.freq,50);
+      currentNote=notes.remove(0);
+    }
+    Note currentEndNote=noteEnds.remove(0);
+    while(currentEndNote.beatEnd==currentTimeMillis){
+      midiChannel[0].noteOff(currentEndNote.freq);
+      currentEndNote=noteEnds.remove(0);
+    }
+  }
 }
