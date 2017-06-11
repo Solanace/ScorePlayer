@@ -45,6 +45,9 @@ void setup(){
       mark(getLeft(i), 3, YELLOW);
       mark(getLeft(j), 3, GREEN);
     }
+    notes=new ArrayList<Note>();
+    notes.add(new Note(61,3,14970));
+    notes.add(new Note(60,10,149700));
   }
   catch (MidiUnavailableException e) {
     print(e);
@@ -55,7 +58,7 @@ void draw() {
   background(0);
   image(score, 0, 0);
   try{
-    play(midiChannel);
+    play();
   }
   catch(MidiUnavailableException e){
     println("idk wtf is going on");
@@ -140,21 +143,35 @@ int getLeft(int i) {
 }
 
 /////////////////////////////// THE CORE FUNCTION THAT CAN POTENTIALLY BE PUT IN ANOTHER CLASS
-void play(MidiChannel[] midiChannel) throws MidiUnavailableException{
+void play() throws MidiUnavailableException{
+  //midiChannel[0].noteOn(60,80);
   ArrayList<Note> noteEnds=new ArrayList<Note>();
   long startTime=System.currentTimeMillis();
   while (notes.size()!=0){
+      println(startTime);
     long currentTime=System.currentTimeMillis()-startTime;
-    Note currentNote=notes.remove(0);
-    while(currentNote.beatStart==System.currentTimeMillis()){
-      noteEnds.add(currentNote);
-      midiChannel[0].noteOn(currentNote.freq,50);
+    
+    //starting the notes
+    Note currentNote=notes.get(0);
+    if (currentTime==currentNote.beatStart){
       currentNote=notes.remove(0);
+      while (currentNote.beatStart==currentTime){
+        noteEnds.add(currentNote);
+        midiChannel[0].noteOn(currentNote.freq,80);
+        currentNote=notes.remove(0);
+      }
     }
-    Note currentEndNote=noteEnds.remove(0);
-    while(currentEndNote.beatEnd==System.currentTimeMillis()){
-      midiChannel[0].noteOff(currentEndNote.freq);
-      currentEndNote=noteEnds.remove(0);
+    
+    //ending the notes
+    if (noteEnds.size()>0){
+      Note currentEndNote=noteEnds.get(0);
+      if (currentTime==currentEndNote.beatEnd){
+        currentEndNote=noteEnds.remove(0);
+        while(currentEndNote.beatEnd==currentTime){
+          midiChannel[0].noteOff(currentEndNote.freq);
+          currentEndNote=noteEnds.remove(0);
+        }  
+      }
     }
   }
 }
