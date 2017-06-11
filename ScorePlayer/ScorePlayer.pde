@@ -141,7 +141,7 @@ int getLeft(int i) {
 
 /////////////////////////////// THE CORE FUNCTION THAT CAN POTENTIALLY BE PUT IN ANOTHER CLASS
 void play(MidiChannel[] midiChannel) throws MidiUnavailableException{
-  ArrayList<Note> noteEnds=new ArrayList<Note>;
+  ArrayList<Note> noteEnds=new ArrayList<Note>();
   long startTime=System.currentTimeMillis();
   while (notes.size()!=0){
     long currentTime=System.currentTimeMillis()-startTime;
