@@ -1,8 +1,9 @@
 class Note {
-    double freq, beatStart, beatEnd;
+    int freq;
+    double beatStart, beatEnd;
     boolean isRest;
     
-    Note(double frequency, double start, double end) {
+    Note(int frequency, double start, double end) {
         freq = frequency;
         beatStart = start;
         beatEnd = end;
