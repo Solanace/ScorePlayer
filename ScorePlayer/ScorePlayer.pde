@@ -239,7 +239,7 @@ int getDown(int loc){
   return getDown(loc,0);  
 }
 
-int getWidth(int loc, int left) {//wrapper's width is gonna be 0
+int getLeft(int loc, int left) {//wrapper's width is gonna be 0
   if (score.pixels[loc].color!=BLUE){
       return left;
   }
@@ -252,10 +252,10 @@ int getWidth(int loc, int left) {//wrapper's width is gonna be 0
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
       if (score.pixels[nextLoc].color==BLUE){
           if (i==2){
-              return getWidth(nextLoc,left+1);
+              return getLeft(nextLoc,left+1);
           }
           else{
-              return getWidth(nextLoc,left);
+              return getLeft(nextLoc,left);
           }
       }
   }
@@ -274,10 +274,10 @@ int getRight(int loc, int right) {//wrapper's width is gonna be 0
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
       if (score.pixels[nextLoc].color==BLUE){
           if (i==2){
-              return getWidth(nextLoc,right+1);
+              return getRight(nextLoc,right+1);
           }
           else{
-              return getWidth(nextLoc,right);
+              return getRight(nextLoc,right);
           }
       }
   }
@@ -296,10 +296,10 @@ int getUp(int loc, int up) {//wrapper's width is gonna be 0
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
       if (score.pixels[nextLoc].color==BLUE){
           if (i==0){
-              return getWidth(nextLoc,up+1);
+              return getUp(nextLoc,up+1);
           }
           else{
-              return getWidth(nextLoc,up);
+              return getUp(nextLoc,up);
           }
       }
   }
@@ -318,10 +318,10 @@ int getDown(int loc, int down) {//wrapper's width is gonna be 0
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
       if (score.pixels[nextLoc].color==BLUE){
           if (i==0){
-              return getWidth(nextLoc,down+1);
+              return getDown(nextLoc,down+1);
           }
           else{
-              return getWidth(nextLoc,down);
+              return getDown(nextLoc,down);
           }
       }
   }
