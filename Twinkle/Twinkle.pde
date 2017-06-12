@@ -19,6 +19,7 @@ int staffHeight;
 boolean doubleClef;
 ArrayList<Note> notes;
 int startBeat = 0, endBeat = 1;
+int startCol, endCol;
 
 void setup(){
   size(1200, 1080);
@@ -31,6 +32,11 @@ void setup(){
   bluifyNotes();
   blackenStaffLines();
   staffEnds();
+  startCol();
+  highlightVert(startCol);
+  endCol();
+  highlightVert(endCol);
+  println("startCol: "+startCol);
   for (int i = 0; i < staffEnds.size() - 1; i ++) {
     if (staffEnds.get(i).equals(staffEnds.get(i + 1))) {
       staffEnds.remove(i);
@@ -62,6 +68,36 @@ void setup(){
   image(tester, 1150, 800);
 }
 ///////////////////////////////////////
+void startCol(){//column (x) of the where the staves start
+  for (int c=score.width/20; c<score.width; c++){
+    int x=0;
+    for (int r=staffLines.get(0); r<staffLines.get(0)+staffHeight; r++){
+      if (score.pixels[r*score.width+c]!=WHITE){
+        x++;
+      }
+    }
+    if (x*1.0/staffHeight>0.85){
+      startCol=c;
+      return;
+    }
+  }
+}
+////////////////////////////////////////////////////////
+void endCol(){//column (x) of the where the staves start
+  for (int c=score.width; c>score.width/2; c--){
+    int x=0;
+    for (int r=staffLines.get(0); r<staffLines.get(0)+staffHeight; r++){
+      if (score.pixels[r*score.width+c]!=WHITE){
+        x++;
+      }
+    }
+    if (x*1.0/staffHeight>0.85){
+      endCol=c;
+      return;
+    }
+  }
+}
+////////////////////////////////////////////////////
 void staffHeight(){
   int i=0;
   while (!approx(staffLines.get(i+1)-staffLines.get(i),spaceBetweenClefs) && !approx(staffLines.get(i+1)-staffLines.get(i),spaceBetweenStaves)){
@@ -275,6 +311,14 @@ void highlightLine(int x){
   for (int i=0; i<score.width; i++){
     if (score.pixels[x*score.width+i]!=WHITE){
       score.pixels[x*score.width+i]=BLUE;
+    }
+  }
+}
+
+void highlightVert(int y){
+  for (int i=0; i<score.height; i++){
+    if (score.pixels[i*score.width+y]!=WHITE){
+      score.pixels[i*score.width+y]=RED;
     }
   }
 }
@@ -591,6 +635,14 @@ int[] crop(int x1, int x2, int y1, int y2) {
   for (int r = y1; r < y2; r ++) {
     for (int c = x1; c < x2; c ++) {
       pixels[i] = score.pixels[r * score.width + c];
+      
+      /*if (score.pixels[r*score.width+c]==GREEN){
+        pixels[i] = BLACK;
+      }
+      else{
+        pixels[i]=WHITE;
+      }
+      */
       i ++;
     }
   }
