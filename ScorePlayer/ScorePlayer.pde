@@ -26,6 +26,7 @@ void setup(){
   highlightBetween();
   blackenStaffLines();
   bluifyNotes();
+  blackenStaffLines();
  // println(""+score.width+" "+score.height);
   score.loadPixels();
   
@@ -162,10 +163,50 @@ void bluifyNotes() {
       try {
         if (score.pixels[i - score.width] == BLUE) {
               score.pixels[i] = BLUE;
-            }
+        }
       }
       catch (ArrayIndexOutOfBoundsException e) {
       }
+    }
+  }
+  for (int i = score.pixels.length - 1; i > -1; i --) {
+    if (score.pixels[i] != WHITE &&
+        score.pixels[i] != BLUE) {
+      try {
+        if (score.pixels[i + score.width] == BLUE) {
+              score.pixels[i] = BLUE;
+        }
+      }
+      catch (ArrayIndexOutOfBoundsException e) {
+      }
+    }
+  }
+  for (int i = 0; i < staffLines.get(0) * score.width; i ++) {
+    if (score.pixels[i] == BLACK) {
+      if (score.pixels[i + 1] == BLUE ||
+          score.pixels[i - 1] == BLUE) {
+            score.pixels[i] = BLUE;
+          }
+    }
+  }
+  for (int i = score.pixels.length - 1; i > -1; i --) {
+    if (score.pixels[i] != WHITE &&
+        score.pixels[i] != BLUE) {
+      try {
+        if (score.pixels[i + score.width] == BLUE) {
+              score.pixels[i] = BLUE;
+        }
+      }
+      catch (ArrayIndexOutOfBoundsException e) {
+      }
+    }
+  }
+  for (int i = 0; i < staffLines.get(0) * score.width; i ++) {
+    if (score.pixels[i] == BLACK) {
+      if (score.pixels[i + 1] == BLUE ||
+          score.pixels[i - 1] == BLUE) {
+            score.pixels[i] = BLUE;
+          }
     }
   }
 }
