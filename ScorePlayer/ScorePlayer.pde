@@ -1,4 +1,5 @@
 import javax.sound.midi.*;
+import java.util.Collections;
 PImage score, tester;
 int WHITE = color(255, 255, 255);
 int RED = color(255, 0, 0);
@@ -11,16 +12,17 @@ int BLACK = color(0, 0, 0);
 Synthesizer synthesizer;
 MidiChannel[] midiChannel;
 Instrument[] instruments;
-ArrayList<Integer> staffLines;
+ArrayList<Integer> staffLines, temp;
 int spaceBetweenStaves;
 int spaceBetweenClefs;
 int staffHeight;
 boolean doubleClef;
+ArrayList<Note> notes;
 
 void setup(){
   size(1200, 2500);
   //frameRate(1);
-  score = loadImage("twinkle1.png");//////////////////////////////////////////////////////////////////////////////////////////////
+  score = loadImage("MarchWind.png");//////////////////////////////////////////////////////////////////////////////////////////////
   //score.resize(score.width*3/2,score.height*3/2);
   cleanse();
   highlightBetween();
@@ -34,7 +36,7 @@ void setup(){
   tester.loadPixels();
   tester.pixels = smaller;
   tester.updatePixels();
-  
+  notes = readScore();
   // Margaret's synthesizer
   try {
     synthesizer = MidiSystem.getSynthesizer();
@@ -237,119 +239,96 @@ ArrayList<Note> readScore(){//completes the notes arraylist
   ArrayList<Note> notes = new ArrayList<Note>();
   for (int i = 0; i < score.pixels.length; i ++) {
      if (score.pixels[i] == BLUE) {
+       int l = getLeft(i);
+       int r = getRight(i);
+       int u = getUp(i);
+       int d = getDown(i);
+       //int[] blah = crop(l, r, u, d);
+       //println(l + ", " + r + ", " + u + ", " + d);
+       //if (d - u > 0) {
+       //  println(d - u);
+       //}
+       mark(getRow(i) * score.width + l, 2, YELLOW);
+       mark(getRow(i) * score.width + r, 3, RED);
+       mark(u * score.width + getCol(i), 2, PURPLE);
+       mark(d * score.width + getCol(i), 2, ORANGE);
       }
   }
   return notes;
 }
 
-int getLeft(int loc){
-  return getLeft(loc,0);  
+int getLeft(int loc) {
+  temp = new ArrayList<Integer>();
+  getCols(loc, BLUE, RED);  
+  Collections.sort(temp);
+  return temp.get(0);
 }
 
-int getRight(int loc){
-  return getRight(loc,0);  
+int getRight(int loc) {
+  temp = new ArrayList<Integer>();
+  getCols(loc, RED, ORANGE);  
+  Collections.sort(temp);
+  return temp.get(temp.size() - 1); 
 }
 
-int getUp(int loc){
-  return getUp(loc,0);  
+int getUp(int loc) {
+  temp = new ArrayList<Integer>();
+  getRows(loc, ORANGE, YELLOW);  
+  Collections.sort(temp);
+  return temp.get(0);   
 }
 
-int getDown(int loc){
-  return getDown(loc,0);  
+int getDown(int loc) {
+  temp = new ArrayList<Integer>();
+  getRows(loc, YELLOW, GREEN);  
+  Collections.sort(temp);
+  return temp.get(temp.size() - 1);   
 }
 
-int getLeft(int loc, int left) {//wrapper's width is gonna be 0
-  if (score.pixels[loc]!=BLUE){
-      return left;
-  }
-  score.pixels[loc]=BLACK;
-  int x=getCol(loc);
-  int y=getRow(loc);
-  int[] hor={0, 0, -1};
-  int[] ver={1, -1, 0,};//horrible flashback to NQueens
-  for (int i=0; i<hor.length; i++){
-      int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc]==BLUE){
-          if (i==2){
-              return getLeft(nextLoc,left+1);
-          }
-          else{
-              return getLeft(nextLoc,left);
-          }
+void getCols(int loc, int replace, int newColor) {
+  temp.add(getCol(loc));
+  score.pixels[loc] = newColor;
+  int[] colShift = {1, -1, 0, 0};
+  int[] rowShift = {0, 0, 1, -1};
+  for (int i = 0; i < colShift.length; i ++) {
+    int newLoc = (getRow(loc) + rowShift[i]) * score.width + getCol(loc) + colShift[i];
+    if (newLoc > -1 && newLoc < score.pixels.length) {
+      if (score.pixels[newLoc] == replace) {
+        getCols(newLoc, replace, newColor);
       }
+    }
   }
-  return 0;
 }
 
-int getRight(int loc, int right) {//wrapper's width is gonna be 0
-  if (score.pixels[loc]!=BLACK || score.pixels[loc]!=BLUE){
-      return right;
-  }
-  score.pixels[loc]=RED;
-  int x=getCol(loc);
-  int y=getRow(loc);
-  int[] hor={0, 0, 1};
-  int[] ver={1, -1, 0,};//horrible flashback to NQueens
-  for (int i=0; i<hor.length; i++){
-      int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc]==BLACK || score.pixels[nextLoc]==BLUE){
-          if (i==2){
-              return getRight(nextLoc,right+1);
-          }
-          else{
-              return getRight(nextLoc,right);
-          }
+void getRows(int loc, int replace, int newColor) {
+  temp.add(getRow(loc));
+  score.pixels[loc] = newColor;
+  int[] colShift = {1, -1, 0, 0};
+  int[] rowShift = {0, 0, 1, -1};
+  for (int i = 0; i < colShift.length; i ++) {
+    int newLoc = (getRow(loc) + rowShift[i]) * score.width + getCol(loc) + colShift[i];
+    if (newLoc > -1 && newLoc < score.pixels.length) {
+      if (score.pixels[newLoc] == replace) {
+        getRows(newLoc, replace, newColor);
       }
+    }
   }
-  return 0;
 }
 
-int getUp(int loc, int up) {//wrapper's width is gonna be 0
-  if (score.pixels[loc]!=BLACK || score.pixels[loc]!=BLUE || score.pixels[loc]!=RED){
-      return up;
-  }
-  score.pixels[loc]=GREEN;
-  int x=getCol(loc);
-  int y=getRow(loc);
-  int[] hor={0, -1, 1};
-  int[] ver={1, 0, 0,};//horrible flashback to NQueens
-  for (int i=0; i<hor.length; i++){
-      int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc]==BLACK|| score.pixels[nextLoc]==BLUE || score.pixels[nextLoc]==RED){
-          if (i==0){
-              return getUp(nextLoc,up+1);
-          }
-          else{
-              return getUp(nextLoc,up);
-          }
+/*void fill(int loc, int replace1, int newColor) {
+  temp = new ArrayList<Integer>();
+  score.pixels[loc] = newColor;
+  int[] colShift = {1, -1, 0, 0};
+  int[] rowShift = {0, 0, 1, -1};
+  for (int i = 0; i < colShift.length; i ++) {
+    int newLoc = (getRow(loc) + rowShift[i]) * score.width + getCol(loc) + colShift[i];
+    if (newLoc > -1 && newLoc < score.pixels.length) {
+      if (score.pixels[newLoc] == replace1) {
+        fill(newLoc, replace1, newColor);
       }
+    }
   }
-  return 0;
-}
-
-int getDown(int loc, int down) {//wrapper's width is gonna be 0
-  if (score.pixels[loc]!=BLACK || score.pixels[loc]!=BLUE || score.pixels[loc]!=RED|| score.pixels[loc]!=GREEN){
-      return down;
-  }
-  score.pixels[loc]=YELLOW;
-  int x=getCol(loc);
-  int y=getRow(loc);
-  int[] hor={0, -1, 1};
-  int[] ver={-1, 0, 0,};//horrible flashback to NQueens
-  for (int i=0; i<hor.length; i++){
-      int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc]==BLACK || score.pixels[nextLoc]==BLUE || score.pixels[nextLoc]==RED || score.pixels[loc]!=GREEN){
-          if (i==0){
-              return getDown(nextLoc,down+1);
-          }
-          else{
-              return getDown(nextLoc,down);
-          }
-      }
-  }
-  return 0;
-}
-
+}*/
 
 int getAkhtual(int x, int y){
     return y*score.width+x;
@@ -373,6 +352,24 @@ int getRow(int i) {
 
 int getCol(int i) {
   return i % score.width;
+}
+
+void mark(int center, int radius, int hue) {
+  if (radius > 0) {
+    for (int row = getRow(center) - radius; row <= getRow(center) + radius; row ++) {
+      for (int col = getCol(center) - radius; col <= getCol(center) + radius; col ++) {
+        try {
+          score.pixels[row * score.width + col] = hue;
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+        }
+      }
+    }
+    score.pixels[center] = BLACK;
+  }
+  else {
+    score.pixels[center] = hue;
+  }
 }
 
 void draw() {
@@ -415,7 +412,7 @@ void playScale(int i, int time) {
 }
 
 void play(int i, int time) {
-  println(getNote(i));
+  //println(getNote(i));
   midiChannel[0].noteOn(i, 100);
   delay(time);
   midiChannel[0].noteOff(i);
