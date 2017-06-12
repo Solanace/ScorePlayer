@@ -29,7 +29,14 @@ void setup(){
   blackenStaffLines();
   bluifyNotes();
   blackenStaffLines();
-    staffEnds();
+  staffEnds();
+  for (int i = 0; i < staffEnds.size() - 1; i ++) {
+    if (staffEnds.get(i).equals( staffEnds.get(i + 1))) {
+      staffEnds.remove(i);
+      i --;
+    }
+  }
+  println(staffEnds);
  // println(""+score.width+" "+score.height);
   score.loadPixels();
   int[] smaller = crop(0, score.width / 2, 0, score.height / 2);
