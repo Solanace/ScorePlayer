@@ -240,17 +240,17 @@ int getDown(int loc){
 }
 
 int getLeft(int loc, int left) {//wrapper's width is gonna be 0
-  if (score.pixels[loc].color!=BLUE){
+  if (score.pixels[loc]!=BLUE){
       return left;
   }
-  score.pixels[loc].color=BLACK;
-  int x=loc.getCol;
-  int y=loc.getRow;
+  score.pixels[loc]=BLACK;
+  int x=getCol(loc);
+  int y=getRow(loc);
   int[] hor={0, 0, -1};
   int[] ver={1, -1, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc].color==BLUE){
+      if (score.pixels[nextLoc]==BLUE){
           if (i==2){
               return getLeft(nextLoc,left+1);
           }
@@ -262,17 +262,17 @@ int getLeft(int loc, int left) {//wrapper's width is gonna be 0
 }
 
 int getRight(int loc, int right) {//wrapper's width is gonna be 0
-  if (score.pixels[loc].color!=BLUE){
+  if (score.pixels[loc]!=BLUE){
       return right;
   }
-  score.pixels[loc].color=BLACK;
-  int x=loc.getCol;
-  int y=loc.getRow;
+  score.pixels[loc]=BLACK;
+  int x=getCol(loc);
+  int y=getRow(loc);
   int[] hor={0, 0, 1};
   int[] ver={1, -1, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc].color==BLUE){
+      if (score.pixels[nextLoc]==BLUE){
           if (i==2){
               return getRight(nextLoc,right+1);
           }
@@ -284,17 +284,17 @@ int getRight(int loc, int right) {//wrapper's width is gonna be 0
 }
 
 int getUp(int loc, int up) {//wrapper's width is gonna be 0
-  if (score.pixels[loc].color!=BLUE){
+  if (score.pixels[loc]!=BLUE){
       return up;
   }
-  score.pixels[loc].color=BLACK;
-  int x=loc.getCol;
-  int y=loc.getRow;
+  score.pixels[loc]=BLACK;
+  int x=getCol(loc);
+  int y=getRow(loc);
   int[] hor={0, -1, 1};
   int[] ver={1, 0, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc].color==BLUE){
+      if (score.pixels[nextLoc]==BLUE){
           if (i==0){
               return getUp(nextLoc,up+1);
           }
@@ -306,17 +306,17 @@ int getUp(int loc, int up) {//wrapper's width is gonna be 0
 }
 
 int getDown(int loc, int down) {//wrapper's width is gonna be 0
-  if (score.pixels[loc].color!=BLUE){
+  if (score.pixels[loc]!=BLUE){
       return down;
   }
-  score.pixels[loc].color=BLACK;
-  int x=loc.getCol;
-  int y=loc.getRow;
+  score.pixels[loc]=BLACK;
+  int x=getCol(col);
+  int y=getRow(col);
   int[] hor={0, -1, 1};
   int[] ver={-1, 0, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc].color==BLUE){
+      if (score.pixels[nextLoc]==BLUE){
           if (i==0){
               return getDown(nextLoc,down+1);
           }
@@ -333,15 +333,15 @@ int getAkhtual(int x, int y){
 }
 
 int[] crop(int x1, int x2, int y1, int y2) {
-    int[] pixels = new int[(x2 - x1) * (y2 - y1)];
-    int i = 0;
-    for (int r = y1; r <= y2; r ++) {
-        for (int c = x1; c <= x2; c ++) {
-            pixels[i] = score.pixels[r * score.width + c];
-            i ++;
-        }
+  int[] pixels = new int[(x2 - x1) * (y2 - y1)];
+  int i = 0;
+  for (int r = y1; r < y2; r ++) {
+    for (int c = x1; c < x2; c ++) {
+      pixels[i] = score.pixels[r * score.width + c];
+      i ++;
     }
-    return pixels;
+  }
+  return pixels;
 }
 ////////////////////////////////////
 void highlightLine(int x){
