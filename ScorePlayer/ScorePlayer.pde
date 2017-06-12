@@ -215,77 +215,133 @@ ArrayList<Note> readScore(){//completes the notes arraylist
   ArrayList<Note> notes = new ArrayList<Note>();
   for (int i = 0; i < score.pixels.length; i ++) {
      if (score.pixels[i] == BLUE) {
-        int w = getWidth(i);
-        int[] image = crop(i, w);
+        int[] w = getWidth(i);
+        int[] h = getHeight(i);
+        int[] image = crop(w[0], w[1], h[0], h[1]);
         notes.add(getNote(image));
       }
   }
 }
 
-int getWidth(int loc){
-  return getWidth(loc,0);  
+int getLeft(int loc){
+  return getLeft(loc,0);  
 }
 
-int getWidth(int loc, int width) {//wrapper's width is gonna be 0
+int getRight(int loc){
+  return getRight(loc,0);  
+}
+
+int getUp(int loc){
+  return getUp(loc,0);  
+}
+
+int getDown(int loc){
+  return getDown(loc,0);  
+}
+
+int getWidth(int loc, int left) {//wrapper's width is gonna be 0
   if (score.pixels[loc].color!=BLUE){
-      return width;
+      return left;
   }
   score.pixels[loc].color=BLACK;
   int x=loc.getCol;
   int y=loc.getRow;
-  int[] hor={0, 0, -1, 1};
-  int[] ver={1, -1, 0, 0};//horrible flashback to NQueens
+  int[] hor={0, 0, -1};
+  int[] ver={1, -1, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
       if (score.pixels[nextLoc].color==BLUE){
-          if (i!=0 && i!=1){
-              return getWidth(nextLoc,width+1);
+          if (i==2){
+              return getWidth(nextLoc,left+1);
           }
           else{
-              return getWidth(nextLoc,width);
+              return getWidth(nextLoc,left);
           }
       }
   }
 }
 
-int getHeight(int loc){
-    return getHeight(loc, 0);
-}
-
-int getWidth(int loc, int height) {//wrapper's width is gonna be 0
+int getRight(int loc, int right) {//wrapper's width is gonna be 0
   if (score.pixels[loc].color!=BLUE){
-      return height;
+      return right;
   }
   score.pixels[loc].color=BLACK;
   int x=loc.getCol;
   int y=loc.getRow;
-  int[] hor={0, 0, -1, 1};
-  int[] ver={1, -1, 0, 0};//horrible flashback to NQueens
+  int[] hor={0, 0, 1};
+  int[] ver={1, -1, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
       if (score.pixels[nextLoc].color==BLUE){
-          if (i!=2 && i!=3){
-              return getHeight(nextLoc,height+1);
+          if (i==2){
+              return getWidth(nextLoc,right+1);
           }
           else{
-              return getHeight(nextLoc,height);
+              return getWidth(nextLoc,right);
           }
       }
   }
 }
+
+int getUp(int loc, int up) {//wrapper's width is gonna be 0
+  if (score.pixels[loc].color!=BLUE){
+      return up;
+  }
+  score.pixels[loc].color=BLACK;
+  int x=loc.getCol;
+  int y=loc.getRow;
+  int[] hor={0, -1, 1};
+  int[] ver={1, 0, 0,};//horrible flashback to NQueens
+  for (int i=0; i<hor.length; i++){
+      int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
+      if (score.pixels[nextLoc].color==BLUE){
+          if (i==0){
+              return getWidth(nextLoc,up+1);
+          }
+          else{
+              return getWidth(nextLoc,up);
+          }
+      }
+  }
+}
+
+int getDown(int loc, int down) {//wrapper's width is gonna be 0
+  if (score.pixels[loc].color!=BLUE){
+      return down;
+  }
+  score.pixels[loc].color=BLACK;
+  int x=loc.getCol;
+  int y=loc.getRow;
+  int[] hor={0, -1, 1};
+  int[] ver={-1, 0, 0,};//horrible flashback to NQueens
+  for (int i=0; i<hor.length; i++){
+      int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
+      if (score.pixels[nextLoc].color==BLUE){
+          if (i==0){
+              return getWidth(nextLoc,down+1);
+          }
+          else{
+              return getWidth(nextLoc,down);
+          }
+      }
+  }
+}
+
 
 int getAkhtual(int x, int y){
     return y*score.width+x;
 }
 
-int[] crop(int i, int width)
-int[] crop(int i, int width)
-/////////////////////////////////
-boolean approx(int x, int y){
-  if (Math.abs(x-y)*1.0/y<0.04){
-    return true;
-  }
-  return false;
+int[] crop(int x1, int x2, int y1, int y2) {
+    int[] pixels = new int[(x2 - x1) * (y2 - y1)];
+    int i = 0;
+    for (int r = y1; r <= y2; r ++) {
+        for (int c = x1; c <= x2; c ++) {
+            pixels[i] = score.pixels[r * score.width + c];
+            i ++;
+        }
+    }
+    return pixels;
 }
 ////////////////////////////////////
 void highlightLine(int x){
