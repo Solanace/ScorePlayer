@@ -18,11 +18,12 @@ int spaceBetweenClefs;
 int staffHeight;
 boolean doubleClef;
 ArrayList<Note> notes;
+int startBeat = 0, endBeat = 1;
 
 void setup(){
   size(1200, 1080);
   //frameRate(1);
-  score = loadImage("MarchWind.png");//////////////////////////////////////////////////////////////////////////////////////////////
+  score = loadImage("twinkle1.png");//////////////////////////////////////////////////////////////////////////////////////////////
   //score.resize(score.width*3/2,score.height*3/2);
   cleanse();
   highlightBetween();
@@ -57,7 +58,8 @@ void setup(){
     print(e);
   }
   //background(0);
-  //image(score, 0, 0);
+  image(score, 0, 0);
+  image(tester, 1150, 800);
 }
 ///////////////////////////////////////
 void staffHeight(){
@@ -305,6 +307,14 @@ ArrayList<Note> readScore(){//completes the notes arraylist
           //}
           tester = createImage(r - l, d - u, RGB);
           tester.pixels = blah;
+          if (tester.width > 5 && tester.width < 12) {
+            if (count % 2 == 1) { // BASS CLEF
+              notes.add(getNote(tester, 'g'));
+            }
+            else { // TREBLE CLEF
+              notes.add(getNote(tester, 'b'));
+            }
+          }
           image(tester, w, 0);
           w = w + tester.height + 5;
           mark(getRow(i) * score.width + l, 2, YELLOW);
@@ -318,6 +328,109 @@ ArrayList<Note> readScore(){//completes the notes arraylist
   }
   return notes;
 }
+
+Note getNote(PImage note, char clef) { // 'g' for treble and 'b' for bass
+  //println("New note");
+  double linNum; // 0 denotes bottom of the staff, 0.5 denotes space above it
+  ArrayList<Integer> staffPos = new ArrayList<Integer>();
+  for (int r = 0; r < note.height; r ++) {
+    if (note.pixels[r * note.width] == BLACK ||
+      note.pixels[r * note.width + note.width - 1] == BLACK) {
+      staffPos.add(r);
+    }
+  }
+  for (int i = staffPos.size() - 1; i >= 0; i --) {
+    try {
+      if (staffPos.get(i) == staffPos.get(i - 1) + 1) {
+              staffPos.remove(i);
+          }
+    }
+    catch (ArrayIndexOutOfBoundsException e) {
+    }
+  }
+  int noteTop = -1, noteBase = -1;
+  for (int i = 0; i < note.pixels.length; i ++) {
+    if (note.pixels[i] == GREEN) {
+      try {
+        if (note.pixels[i + 1] == GREEN &&
+            note.pixels[i + 2] == GREEN &&
+            getRow(i) == getRow(i + 1) &&
+            getRow(i) == getRow(i + 2)) {
+              noteTop = i / note.width;
+              break;
+            }
+      }
+      catch (ArrayIndexOutOfBoundsException e) {
+      }
+    }
+  }
+  for (int i = note.pixels.length - 1; i >= 0; i --) {
+    if (note.pixels[i] == GREEN) {
+      try {
+        //print(note.pixels[i - 1] == GREEN);
+        if (note.pixels[i - 1] == GREEN) {
+              //println(i);
+              noteBase = i / note.width;
+              break;
+            }
+      }
+      catch (ArrayIndexOutOfBoundsException e) {
+      }
+    }
+  }
+  //println(noteTop);
+  //println(noteBase);
+  //for (int i: staffPos) {
+  //  println(i);
+  //}
+  //background(100);
+  //image(note, 1150, 800);
+  if (noteTop < staffPos.get(0) && noteBase < staffPos.get(0)) {
+    if (clef == 'g') return new Note(79, startBeat ++, endBeat ++, false);
+    else return new Note(59, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(0) && noteBase < staffPos.get(1)) {
+    if (clef == 'g') return new Note(77, startBeat ++, endBeat ++, false);
+    else return new Note(57, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(1) && noteBase < staffPos.get(1)) {
+    if (clef == 'g') return new Note(76, startBeat ++, endBeat ++, false);
+    else return new Note(55, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(1) && noteBase < staffPos.get(2)) {
+    if (clef == 'g') return new Note(74, startBeat ++, endBeat ++, false);
+    else return new Note(53, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(2) && noteBase < staffPos.get(2)) {
+    if (clef == 'g') return new Note(72, startBeat ++, endBeat ++, false);
+    else return new Note(52, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(2) && noteBase < staffPos.get(3)) {
+    if (clef == 'g') return new Note(71, startBeat ++, endBeat ++, false);
+    else return new Note(50, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(3) && noteBase < staffPos.get(3)) {
+    if (clef == 'g') return new Note(69, startBeat ++, endBeat ++, false);
+    else return new Note(48, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(3) && noteBase < staffPos.get(4)) {
+    if (clef == 'g') return new Note(67, startBeat ++, endBeat ++, false);
+    else return new Note(47, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(4) && noteBase < staffPos.get(4)) {
+    if (clef == 'g') return new Note(65, startBeat ++, endBeat ++, false);
+    else return new Note(45, startBeat ++, endBeat ++, false);
+  }
+  else if (noteTop < staffPos.get(4)) {
+    if (clef == 'g') return new Note(64, startBeat ++, endBeat ++, false);
+    else return new Note(43, startBeat ++, endBeat ++, false);
+  }
+  else {
+    if (clef == 'g') return new Note(62, startBeat ++, endBeat ++, false);
+    else return new Note(41, startBeat ++, endBeat ++, false);
+  }
+}
+
 
 int getLeft(int loc) {
   temp = new ArrayList<Integer>();
@@ -342,7 +455,7 @@ int getUp(int loc) {
 
 int getDown(int loc) {
   temp = new ArrayList<Integer>();
-  getRows(loc, YELLOW, BLACK);  
+  getRows(loc, YELLOW, GREEN);  
   Collections.sort(temp);
   return temp.get(temp.size() - 1);   
 }
@@ -435,8 +548,11 @@ void mark(int center, int radius, int hue) {
 }
 
 void draw() {
-  for (int i = 60; i < 128; i ++) {
+  //for (int i = 60; i < 128; i ++) {
     //playScale(i, 100);
+  //}
+  for (Note n: notes) {
+    play(n.pitch, (int)(n.beatEnd - n.beatStart) * 500);
   }
 }
 
