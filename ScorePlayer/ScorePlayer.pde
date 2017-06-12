@@ -139,6 +139,21 @@ void blackenStaffLines() {
       }
     }
   }
+  for (int i = 0; i < score.pixels.length; i ++) {
+    if (score.pixels[i] == BLUE) {
+      int count = 0;
+      int col = i;
+      while (score.pixels[col] == BLUE) {
+        count ++;
+        col ++;
+      }
+      if (count > 15) {
+        for (int j = i; j <= col; j ++) {
+          score.pixels[j] = BLACK;
+        }
+      }
+    }
+  }
 }
 /////////////////////////////////////////////////
 void bluifyNotes() {
