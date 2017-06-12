@@ -79,7 +79,11 @@ void staffEnds(){
     }
     catch(IndexOutOfBoundsException e){println("line 79");}
   }
+  staffEnds.add(staffLines.get(staffLines.size()-1));
    println(staffEnds);
+   for (int j=0; j<staffEnds.size(); j++){
+     highlightLine(j);
+   }
 }
 
 void cleanse(){/////////////////////////EXORCISE////////////////////////////////////////////
