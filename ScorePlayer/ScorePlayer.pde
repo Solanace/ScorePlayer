@@ -12,7 +12,7 @@ int BLACK = color(0, 0, 0);
 Synthesizer synthesizer;
 MidiChannel[] midiChannel;
 Instrument[] instruments;
-ArrayList<Integer> staffLines, temp;
+ArrayList<Integer> staffLines, temp, staffEnds;
 int spaceBetweenStaves;
 int spaceBetweenClefs;
 int staffHeight;
@@ -29,6 +29,7 @@ void setup(){
   blackenStaffLines();
   bluifyNotes();
   blackenStaffLines();
+    staffEnds();
  // println(""+score.width+" "+score.height);
   score.loadPixels();
   int[] smaller = crop(0, score.width / 2, 0, score.height / 2);
@@ -48,9 +49,8 @@ void setup(){
   catch (MidiUnavailableException e) {
     print(e);
   }
-  //background(0);
-  //image(tester, 0, 0);
-  //image(score, tester.width, 0);
+  background(0);
+  image(score, 0, 0);
 }
 ///////////////////////////////////////
 void staffHeight(){
@@ -59,6 +59,27 @@ void staffHeight(){
     i++;
   }
   staffHeight=staffLines.get(i-1)-staffLines.get(0);
+}
+/////////////////////////////////////////////////////////////////////
+void staffEnds(){
+  staffEnds=new ArrayList<Integer>();
+  //staffEnds.add(staffLines.get(0));
+  int i=staffLines.get(0);
+  while (i<=staffLines.get(staffLines.size()-1)){
+    try{
+    staffEnds.add(i);
+    i+=staffHeight;
+    staffEnds.add(i);
+    if (doubleClef){
+      i+=spaceBetweenClefs;
+      staffEnds.add(i);
+    }
+    i+=spaceBetweenStaves;
+    staffEnds.add(i);
+    }
+    catch(IndexOutOfBoundsException e){println("line 79");}
+  }
+   println(staffEnds);
 }
 
 void cleanse(){/////////////////////////EXORCISE////////////////////////////////////////////
@@ -237,7 +258,6 @@ void highlightLine(int x){
 }
 
 ArrayList<Note> readScore(){//completes the notes arraylist
-  int w = 0;
   ArrayList<Note> notes = new ArrayList<Note>();
   for (int i = 0; i < score.pixels.length; i ++) {
      if (score.pixels[i] == BLUE) {
@@ -245,12 +265,11 @@ ArrayList<Note> readScore(){//completes the notes arraylist
        int r = getRight(i);
        int u = getUp(i);
        int d = getDown(i);
-       int[] blah = crop(l, r, u, d);
-       tester = createImage(r - l, d - u, RGB);
-       tester.pixels = blah;
-       tester.updatePixels();
-       image(tester, w + 2, 0);
-       w += tester.width;
+       //int[] blah = crop(l, r, u, d);
+       //println(l + ", " + r + ", " + u + ", " + d);
+       //if (d - u > 0) {
+       //  println(d - u);
+       //}
        mark(getRow(i) * score.width + l, 2, YELLOW);
        mark(getRow(i) * score.width + r, 3, RED);
        mark(u * score.width + getCol(i), 2, PURPLE);
@@ -283,7 +302,7 @@ int getUp(int loc) {
 
 int getDown(int loc) {
   temp = new ArrayList<Integer>();
-  getRows(loc, YELLOW, BLACK);  
+  getRows(loc, YELLOW, GREEN);  
   Collections.sort(temp);
   return temp.get(temp.size() - 1);   
 }
