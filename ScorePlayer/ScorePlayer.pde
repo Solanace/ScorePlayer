@@ -48,8 +48,9 @@ void setup(){
   catch (MidiUnavailableException e) {
     print(e);
   }
-  background(0);
-  image(score, 0, 0);
+  //background(0);
+  //image(tester, 0, 0);
+  //image(score, tester.width, 0);
 }
 ///////////////////////////////////////
 void staffHeight(){
@@ -236,6 +237,7 @@ void highlightLine(int x){
 }
 
 ArrayList<Note> readScore(){//completes the notes arraylist
+  int w = 0;
   ArrayList<Note> notes = new ArrayList<Note>();
   for (int i = 0; i < score.pixels.length; i ++) {
      if (score.pixels[i] == BLUE) {
@@ -243,11 +245,12 @@ ArrayList<Note> readScore(){//completes the notes arraylist
        int r = getRight(i);
        int u = getUp(i);
        int d = getDown(i);
-       //int[] blah = crop(l, r, u, d);
-       //println(l + ", " + r + ", " + u + ", " + d);
-       //if (d - u > 0) {
-       //  println(d - u);
-       //}
+       int[] blah = crop(l, r, u, d);
+       tester = createImage(r - l, d - u, RGB);
+       tester.pixels = blah;
+       tester.updatePixels();
+       image(tester, w + 2, 0);
+       w += tester.width;
        mark(getRow(i) * score.width + l, 2, YELLOW);
        mark(getRow(i) * score.width + r, 3, RED);
        mark(u * score.width + getCol(i), 2, PURPLE);
@@ -280,7 +283,7 @@ int getUp(int loc) {
 
 int getDown(int loc) {
   temp = new ArrayList<Integer>();
-  getRows(loc, YELLOW, GREEN);  
+  getRows(loc, YELLOW, BLACK);  
   Collections.sort(temp);
   return temp.get(temp.size() - 1);   
 }
