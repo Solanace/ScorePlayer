@@ -1,5 +1,5 @@
 import javax.sound.midi.*;
-PImage score;
+PImage score, tester;
 int WHITE = color(255, 255, 255);
 int RED = color(255, 0, 0);
 int ORANGE = color(255, 165, 0);
@@ -29,6 +29,11 @@ void setup(){
   blackenStaffLines();
  // println(""+score.width+" "+score.height);
   score.loadPixels();
+  int[] smaller = crop(0, score.width / 2, 0, score.height / 2);
+  tester = createImage(score.width / 2, score.height / 2, RGB);
+  tester.loadPixels();
+  tester.pixels = smaller;
+  tester.updatePixels();
   
   // Margaret's synthesizer
   try {
@@ -68,7 +73,7 @@ for (int r = 0; r < score.height; r ++) {
     }
   }
   for (int i=0; i<staffLines.size(); i++){
-    println(staffLines.get(i));
+    //println(staffLines.get(i));
   }
   spaceBetweenStaves=maximum(staffLines);
   secondMaximum(staffLines, spaceBetweenStaves);
@@ -110,13 +115,6 @@ int secondMaximum(ArrayList<Integer> x, int y){
   return -1;
 }
 //////////////////////////////////////////////
-boolean approx(int x, int y){
-   if ((Math.abs(x-y)/y)<0.05){
-    return true;
-   }
-   return false;
-}
- 
 void highlightBetween(){
   for (int i=0; i<staffLines.get(staffLines.size()-1)-staffLines.get(0); i++){
     int current=i+staffLines.get(0);
@@ -218,16 +216,28 @@ void bluifyNotes() {
   }
 }
 /////////////////////////////////////////////////
+boolean approx(int x, int y){
+  if (Math.abs(x-y)*1.0/y<0.04){
+    return true;
+  }
+  return false;
+}
+////////////////////////////////////
+void highlightLine(int x){
+  for (int i=0; i<score.width; i++){
+    if (score.pixels[x*score.width+i]!=WHITE){
+      score.pixels[x*score.width+i]=BLUE;
+    }
+  }
+}
+
 ArrayList<Note> readScore(){//completes the notes arraylist
   ArrayList<Note> notes = new ArrayList<Note>();
   for (int i = 0; i < score.pixels.length; i ++) {
      if (score.pixels[i] == BLUE) {
-        int[] w = getWidth(i);
-        int[] h = getHeight(i);
-        int[] image = crop(w[0], w[1], h[0], h[1]);
-        notes.add(getNote(image));
       }
   }
+  return notes;
 }
 
 int getLeft(int loc){
@@ -266,6 +276,7 @@ int getLeft(int loc, int left) {//wrapper's width is gonna be 0
           }
       }
   }
+  return -1;
 }
 
 int getRight(int loc, int right) {//wrapper's width is gonna be 0
@@ -288,6 +299,7 @@ int getRight(int loc, int right) {//wrapper's width is gonna be 0
           }
       }
   }
+  return -1;
 }
 
 int getUp(int loc, int up) {//wrapper's width is gonna be 0
@@ -310,6 +322,7 @@ int getUp(int loc, int up) {//wrapper's width is gonna be 0
           }
       }
   }
+  return -1;
 }
 
 int getDown(int loc, int down) {//wrapper's width is gonna be 0
@@ -317,8 +330,8 @@ int getDown(int loc, int down) {//wrapper's width is gonna be 0
       return down;
   }
   score.pixels[loc]=BLACK;
-  int x=getCol(col);
-  int y=getRow(col);
+  int x=getCol(loc);
+  int y=getRow(loc);
   int[] hor={0, -1, 1};
   int[] ver={-1, 0, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
@@ -332,6 +345,7 @@ int getDown(int loc, int down) {//wrapper's width is gonna be 0
           }
       }
   }
+  return -1;
 }
 
 
@@ -350,18 +364,18 @@ int[] crop(int x1, int x2, int y1, int y2) {
   }
   return pixels;
 }
-////////////////////////////////////
-void highlightLine(int x){
-  for (int i=0; i<score.width; i++){
-    if (score.pixels[x*score.width+i]!=WHITE){
-      score.pixels[x*score.width+i]=BLUE;
-    }
-  }
+
+int getRow(int i) {
+  return i / score.width;
+}
+
+int getCol(int i) {
+  return i % score.width;
 }
 
 void draw() {
   background(0);
-  image(score, 0, 0);
+  image(tester, 0, 0);
   //play();
 }
 
