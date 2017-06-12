@@ -20,7 +20,7 @@ boolean doubleClef;
 ArrayList<Note> notes;
 
 void setup(){
-  size(1200, 2500);
+  size(1200, 1080);
   //frameRate(1);
   score = loadImage("MarchWind.png");//////////////////////////////////////////////////////////////////////////////////////////////
   //score.resize(score.width*3/2,score.height*3/2);
@@ -31,7 +31,7 @@ void setup(){
   blackenStaffLines();
   staffEnds();
   for (int i = 0; i < staffEnds.size() - 1; i ++) {
-    if (staffEnds.get(i).equals( staffEnds.get(i + 1))) {
+    if (staffEnds.get(i).equals(staffEnds.get(i + 1))) {
       staffEnds.remove(i);
       i --;
     }
@@ -56,8 +56,8 @@ void setup(){
   catch (MidiUnavailableException e) {
     print(e);
   }
-  background(0);
-  image(score, 0, 0);
+  //background(0);
+  //image(score, 0, 0);
 }
 ///////////////////////////////////////
 void staffHeight(){
@@ -68,31 +68,40 @@ void staffHeight(){
   staffHeight=staffLines.get(i-1)-staffLines.get(0);
 }
 /////////////////////////////////////////////////////////////////////
-void staffEnds(){
-  staffEnds=new ArrayList<Integer>();
+void staffEnds() {
+  staffEnds = new ArrayList<Integer>();
   //staffEnds.add(staffLines.get(0));
-  int i=staffLines.get(0);
-  while (i<=staffLines.get(staffLines.size()-1)){
-    try{
-    staffEnds.add(i);
-    i+=staffHeight;
-    staffEnds.add(i);
-    if (doubleClef){
-      i+=spaceBetweenClefs;
-      staffEnds.add(i);
-    }
-    i+=spaceBetweenStaves;
-    staffEnds.add(i);
-    }
-    catch(IndexOutOfBoundsException e){println("line 79");}
+  int count = 0;
+  int row = 0;
+  while (score.pixels[row * score.width] != BLACK) {
+    row ++;
   }
-  staffEnds.add(staffLines.get(staffLines.size()-1));
-   println(staffEnds);
-   for (int j=0; j<staffEnds.size(); j++){
-     highlightLine(j);
-   }
+  staffEnds.add(row);
+  while (row < score.height) {
+    while (count < 4) {
+      while (score.pixels[row * score.width] != WHITE) {
+        row ++;
+      }
+      while (score.pixels[row * score.width] != BLACK) {
+        row ++;
+      }
+      count ++;
+    }
+    count = 0;
+    while (score.pixels[row * score.width] != WHITE) {
+      row ++;
+    }
+    staffEnds.add(row - 1);
+    try {
+      while (score.pixels[row * score.width] != BLACK) {
+        row ++;
+      }
+      staffEnds.add(row);
+    }
+    catch (ArrayIndexOutOfBoundsException e) {
+    }
+  }
 }
-
 void cleanse(){/////////////////////////EXORCISE////////////////////////////////////////////
 staffLines=new ArrayList<Integer>();
 for (int r = 0; r < score.height; r ++) {
@@ -270,22 +279,42 @@ void highlightLine(int x){
 
 ArrayList<Note> readScore(){//completes the notes arraylist
   ArrayList<Note> notes = new ArrayList<Note>();
-  for (int i = 0; i < score.pixels.length; i ++) {
-     if (score.pixels[i] == BLUE) {
-       int l = getLeft(i);
-       int r = getRight(i);
-       int u = getUp(i);
-       int d = getDown(i);
-       //int[] blah = crop(l, r, u, d);
-       //println(l + ", " + r + ", " + u + ", " + d);
-       //if (d - u > 0) {
-       //  println(d - u);
-       //}
-       mark(getRow(i) * score.width + l, 2, YELLOW);
-       mark(getRow(i) * score.width + r, 3, RED);
-       mark(u * score.width + getCol(i), 2, PURPLE);
-       mark(d * score.width + getCol(i), 2, ORANGE);
+  int[] starts = new int[staffEnds.size() / 2];
+  int[] ends = new int[staffEnds.size() / 2];
+  for (int i = 0; i < staffEnds.size(); i ++) {
+    if (i % 2 == 0) {
+      starts[i / 2] = staffEnds.get(i);
+    }
+    else ends[i / 2] = staffEnds.get(i);
+  }
+  int count = 0;
+  while (count < starts.length) {
+    int w = 0;
+    for (int row = starts[count]; row <= ends[count]; row ++) {
+      for (int col = 0; col < score.width; col ++) {
+        int i = row * score.width + col;
+        if (score.pixels[i] == BLUE) {
+          int l = getLeft(i);
+          int r = getRight(i);
+          int u = getUp(i);
+          int d = getDown(i);
+          int[] blah = crop(l, r, u, d);
+          //println(l + ", " + r + ", " + u + ", " + d);
+          //if (d - u > 0) {
+            //  println(d - u);
+          //}
+          tester = createImage(r - l, d - u, RGB);
+          tester.pixels = blah;
+          image(tester, w, 0);
+          w = w + tester.height + 5;
+          mark(getRow(i) * score.width + l, 2, YELLOW);
+          mark(getRow(i) * score.width + r, 3, RED);
+          mark(u * score.width + getCol(i), 2, PURPLE);
+          mark(d * score.width + getCol(i), 2, ORANGE);
+        }
       }
+    }
+    count ++;
   }
   return notes;
 }
@@ -313,7 +342,7 @@ int getUp(int loc) {
 
 int getDown(int loc) {
   temp = new ArrayList<Integer>();
-  getRows(loc, YELLOW, GREEN);  
+  getRows(loc, YELLOW, BLACK);  
   Collections.sort(temp);
   return temp.get(temp.size() - 1);   
 }
@@ -407,11 +436,11 @@ void mark(int center, int radius, int hue) {
 
 void draw() {
   for (int i = 60; i < 128; i ++) {
-    playScale(i, 100);
+    //playScale(i, 100);
   }
 }
 
-String getNote(int i) {
+String getNoteString(int i) {
   if (i % 12 == 0) return "C" + "(" + i + ")";
   if (i % 12 == 1) return "C#" + "(" + i + ")";
   if (i % 12 == 2) return "D" + "(" + i + ")";
@@ -445,7 +474,7 @@ void playScale(int i, int time) {
 }
 
 void play(int i, int time) {
-  //println(getNote(i));
+  //println(getNoteString(i));
   midiChannel[0].noteOn(i, 100);
   delay(time);
   midiChannel[0].noteOff(i);
