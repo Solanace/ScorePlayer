@@ -20,7 +20,7 @@ boolean doubleClef;
 void setup(){
   size(1200, 2500);
   //frameRate(1);
-  score = loadImage("MarchWind.png");//////////////////////////////////////////////////////////////////////////////////////////////
+  score = loadImage("twinkle1.png");//////////////////////////////////////////////////////////////////////////////////////////////
   //score.resize(score.width*3/2,score.height*3/2);
   cleanse();
   highlightBetween();
@@ -46,6 +46,8 @@ void setup(){
   catch (MidiUnavailableException e) {
     print(e);
   }
+  background(0);
+  image(score, 0, 0);
 }
 ///////////////////////////////////////
 void staffHeight(){
@@ -276,21 +278,21 @@ int getLeft(int loc, int left) {//wrapper's width is gonna be 0
           }
       }
   }
-  return -1;
+  return 0;
 }
 
 int getRight(int loc, int right) {//wrapper's width is gonna be 0
-  if (score.pixels[loc]!=BLUE){
+  if (score.pixels[loc]!=BLACK || score.pixels[loc]!=BLUE){
       return right;
   }
-  score.pixels[loc]=BLACK;
+  score.pixels[loc]=RED;
   int x=getCol(loc);
   int y=getRow(loc);
   int[] hor={0, 0, 1};
   int[] ver={1, -1, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc]==BLUE){
+      if (score.pixels[nextLoc]==BLACK || score.pixels[nextLoc]==BLUE){
           if (i==2){
               return getRight(nextLoc,right+1);
           }
@@ -299,21 +301,21 @@ int getRight(int loc, int right) {//wrapper's width is gonna be 0
           }
       }
   }
-  return -1;
+  return 0;
 }
 
 int getUp(int loc, int up) {//wrapper's width is gonna be 0
-  if (score.pixels[loc]!=BLUE){
+  if (score.pixels[loc]!=BLACK || score.pixels[loc]!=BLUE || score.pixels[loc]!=RED){
       return up;
   }
-  score.pixels[loc]=BLACK;
+  score.pixels[loc]=GREEN;
   int x=getCol(loc);
   int y=getRow(loc);
   int[] hor={0, -1, 1};
   int[] ver={1, 0, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc]==BLUE){
+      if (score.pixels[nextLoc]==BLACK|| score.pixels[nextLoc]==BLUE || score.pixels[nextLoc]==RED){
           if (i==0){
               return getUp(nextLoc,up+1);
           }
@@ -322,21 +324,21 @@ int getUp(int loc, int up) {//wrapper's width is gonna be 0
           }
       }
   }
-  return -1;
+  return 0;
 }
 
 int getDown(int loc, int down) {//wrapper's width is gonna be 0
-  if (score.pixels[loc]!=BLUE){
+  if (score.pixels[loc]!=BLACK || score.pixels[loc]!=BLUE || score.pixels[loc]!=RED|| score.pixels[loc]!=GREEN){
       return down;
   }
-  score.pixels[loc]=BLACK;
+  score.pixels[loc]=YELLOW;
   int x=getCol(loc);
   int y=getRow(loc);
   int[] hor={0, -1, 1};
   int[] ver={-1, 0, 0,};//horrible flashback to NQueens
   for (int i=0; i<hor.length; i++){
       int nextLoc=getAkhtual(x+hor[i], y+ver[i]);
-      if (score.pixels[nextLoc]==BLUE){
+      if (score.pixels[nextLoc]==BLACK || score.pixels[nextLoc]==BLUE || score.pixels[nextLoc]==RED || score.pixels[loc]!=GREEN){
           if (i==0){
               return getDown(nextLoc,down+1);
           }
@@ -345,7 +347,7 @@ int getDown(int loc, int down) {//wrapper's width is gonna be 0
           }
       }
   }
-  return -1;
+  return 0;
 }
 
 
@@ -374,12 +376,47 @@ int getCol(int i) {
 }
 
 void draw() {
-  background(0);
-  image(tester, 0, 0);
-  //play();
+  for (int i = 60; i < 128; i ++) {
+    playScale(i, 100);
+  }
 }
 
-void play() {
-  midiChannel[0].noteOn(60, 100);
-  midiChannel[0].noteOff(60, 100);
+String getNote(int i) {
+  if (i % 12 == 0) return "C" + "(" + i + ")";
+  if (i % 12 == 1) return "C#" + "(" + i + ")";
+  if (i % 12 == 2) return "D" + "(" + i + ")";
+  if (i % 12 == 3) return "D#" + "(" + i + ")";
+  if (i % 12 == 4) return "E" + "(" + i + ")";
+  if (i % 12 == 5) return "F" + "(" + i + ")";
+  if (i % 12 == 6) return "F#" + "(" + i + ")";
+  if (i % 12 == 7) return "G" + "(" + i + ")";
+  if (i % 12 == 8) return "G#" + "(" + i + ")";
+  if (i % 12 == 9) return "A" + "(" + i + ")";
+  if (i % 12 == 10) return "A#" + "(" + i + ")";
+  return "B" + "(" + i + ")";
+}
+
+void playScale(int i, int time) {
+  play(i, time);
+  i += 2;
+  play(i, time);
+  i += 2;
+  play(i, time);
+  i += 1;
+  play(i, time);
+  i += 2;
+  play(i, time);
+  i += 2;
+  play(i, time);
+  i += 2;
+  play(i, time);
+  i += 1;
+  play(i, time);
+}
+
+void play(int i, int time) {
+  println(getNote(i));
+  midiChannel[0].noteOn(i, 100);
+  delay(time);
+  midiChannel[0].noteOff(i);
 }
