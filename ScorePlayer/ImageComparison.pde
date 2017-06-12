@@ -1,13 +1,6 @@
 class ImageComparer{
-  PImage one;
-  PImage two;
   
-  ImageComparer(String first, String second){
-    one=loadImage(first);
-    two=loadImage(second);
-  }
-  
-  double compare(){//returns percent dissimilar
+   double compare(PImage one, PImage two){//returns percent dissimilar
     if (one.width*one.height>two.width*two.height){
       one.resize(two.width,two.height);
     }
@@ -25,18 +18,5 @@ class ImageComparer{
       }
     }
     return percent/(one.width*one.height);
-  }
-  
-  void setOne(String first){
-    one=loadImage(first);
-  }
-  
-  void setTwo(String second){
-    two=loadImage(second);
-  }
-  
-  void setTwo(String first, String second){
-    one=loadImage(first);
-    two=loadImage(second);
   }
 }

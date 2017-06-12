@@ -1,12 +1,13 @@
 class Note {
     int freq;
-    double beatStart, beatEnd;
+    long beatStart, beatEnd;
     boolean isRest;
     
-    Note(int frequency, double start, double end) {
+    Note(int frequency, long start, long end, boolean rest) {
         freq = frequency;
         beatStart = start;
         beatEnd = end;
+        isRest=rest;
     }
     
     public String toString() {
