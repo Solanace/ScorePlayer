@@ -110,6 +110,13 @@ int secondMaximum(ArrayList<Integer> x, int y){
   return -1;
 }
 //////////////////////////////////////////////
+boolean approx(int x, int y){
+   if ((Math.abs(x-y)/y)<0.05){
+    return true;
+   }
+   return false;
+}
+ 
 void highlightBetween(){
   for (int i=0; i<staffLines.get(staffLines.size()-1)-staffLines.get(0); i++){
     int current=i+staffLines.get(0);
